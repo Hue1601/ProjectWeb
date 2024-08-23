@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <comp-header />
-    <add-user/>
+    <h2 style="text-align: center; margin-top: 3px">Danh sách nhân viên</h2>
     <div class="row-list">
       <RouterLink to="/user/add">
         <a class="btn btn-outline-primary">Add</a>
@@ -29,10 +29,12 @@
             <td>{{ item.gioitinh }}</td>
             <td>{{ item.diachi }}</td>
             <td>
-              <RouterLink to="/user/update">
-                <a href="" class="btn btn-outline-primary" >Update</a>
+              <RouterLink :to="`/user/update/${item.id}`">
+                <a class="btn btn-outline-primary">Update</a>
               </RouterLink>
-              <button class="btn btn-outline-primary" style="margin-left:3px">Delete</button>
+              <button @click="DeleteUser(item)" class="btn btn-outline-primary" style="margin-left: 3px" >
+                Delete
+              </button>
             </td>
           </tr>
         </tbody>
@@ -43,8 +45,7 @@
 
 <script>
 import CompHeader from "../../components/CompHeader.vue";
-import AddUser from './AddUser.vue';
-import AddUserVue from './AddUser.vue';
+
 export default {
   name: "list-user",
   data() {
@@ -69,13 +70,27 @@ export default {
       ],
     };
   },
+  unmounted: () => {
+    console.log("Unmounted")
+  },
   components: {
-    CompHeader,
-    AddUser,
-    AddUser
+    CompHeader
+  },
+  methods: {
+    AddUser(user) {
+      this.list.push(user);
+    },
+    DeleteUser(itemDelete) {
+      for (let i = 0; i < this.list.length; i++) {
+        if (itemDelete.id == this.list[i].id) {
+          this.list.splice(i, 1);
+        }
+      }
+    },
   },
 };
 </script>
+
 <style >
 .row-list {
   margin-top: 5px;

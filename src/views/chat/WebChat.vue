@@ -1,9 +1,9 @@
 <template>
   <div class="container">
       <comp-header />
-    <div class="row">
-      <div class="col-2 position-fixed " style="height: 100vh;with:100%; background:rgb(43, 38, 127);">cha</div>
-      <div class="col-10  bg-success">chat box</div>
+    <div class="row mt-1" >
+      <div class="col-2 position-absolute " style="height: 90vh; background:rgb(44, 37, 93)">cha</div>
+      <div class="col-9 offset-1 p-0 position-relative bg-light" style="color:black">chat box</div>
     </div>
   </div>
 </template>
@@ -20,4 +20,13 @@ export default {
 };
 </script>
 <style >
+
+.col-9{
+  width: 80.33%;
+  height: 90vh;
+}
+.offset-1 {
+    margin-left: 19.7%;
+}
+
 </style>

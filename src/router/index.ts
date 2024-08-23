@@ -8,12 +8,12 @@ const router = createRouter({
     //   path: '/',
     //   name: 'home',
     //   component: HomeView
-    // }
-    // {
-    //   path: '/about',
-    //   name: 'about',
-    //   component: () => import('../views/AboutView.vue')
-    // }
+    // },
+    {
+      path: '/about',
+      name: 'about',
+      component: () => import('../views/AboutView.vue')
+    },
     {
       path: '/',
       name: 'login',
@@ -36,7 +36,7 @@ const router = createRouter({
       component: () => import('../views/user/AddUser.vue')
     },
     {
-      path: '/user/update',
+      path: '/user/update/:id',
       name: 'user-update',
       component: () => import('../views/user/UpdateUser.vue')
     },
