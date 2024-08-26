@@ -21,8 +21,10 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="item in users" :key="item.id">
-            <td>{{ item.id }}</td>
+          <!-- <tr v-for="item in users" :key="item.id"> -->
+          <tr v-for="(item,index) in users" :key="index">
+            <!-- <td>{{ item.id }}</td> -->
+             <td>{{ index+1 }}</td>
             <td>{{ item.username }}</td>
             <td>{{ item.pass }}</td>
             <td>{{ item.sdt }}</td>
@@ -45,8 +47,8 @@
 <script>
 import CompHeader from "../../components/CompHeader.vue";
 import axios from 'axios';
-
-const baseUrl = "http://localhost:3000/users";
+ //const baseUrl = "http://localhost:3000/users";
+ const baseUrl = "http://localhost:8080/api/list";
 
 export default {
   name: "list-user",
@@ -67,17 +69,29 @@ export default {
         console.error(error);
       }
     },
+    // async DeleteUser(itemDelete) {
+    //   if (confirm('Are you sure you want to delete this user?')) {
+    //     try {
+    //       await axios.delete(`${baseUrl}/${itemDelete.id}`);
+    //       this.GetListUser();
+    //       alert('User deleted successfully!');
+    //     } catch (error) {
+    //       console.error(error);
+    //     }
+    //   }
+    // }
     async DeleteUser(itemDelete) {
-      if (confirm('Are you sure you want to delete this user?')) {
-        try {
-          await axios.delete(`${baseUrl}/${itemDelete.id}`);
-          this.GetListUser();
-          alert('User deleted successfully!');
-        } catch (error) {
-          console.error(error);
-        }
-      }
+  if (confirm('Are you sure you want to delete this user?')) {
+    try {
+       await axios.delete(`http://localhost:8080/api/delete-user/${itemDelete.id}`);
+      this.GetListUser();
+      alert('User deleted successfully!');
+    } catch (error) {
+      console.error(error);
     }
+  }
+}
+
   },
   mounted() {
     this.GetListUser();

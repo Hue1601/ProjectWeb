@@ -16,8 +16,11 @@
         <input type="text" class="form-control" v-model="users.diachi" />
         
         <label class="form-label">Giới tính</label>
-        <input type="text" class="form-control" v-model="users.gioitinh" />
-        
+        <!-- <input type="text" class="form-control" v-model="users.gioitinh" /> -->
+         <select class="form-select" v-model="users.gioitinh" aria-label="Default select example">
+           <option value="Nam">Nam</option>
+           <option value="Nữ">Nữ</option>
+         </select>
         <button type="submit" class="btn btn-success" style="margin-top:5px; margin-left:45%">Update</button>
       </div>
     </form>
@@ -26,8 +29,8 @@
 
 <script>
 import axios from 'axios';
-const baseUrl = "http://localhost:3000/users";
-
+//const baseUrl = "http://localhost:3000/users";
+ const baseUrl = "http://localhost:8080/api";
 export default {
   name: 'update-user',
   data() {
@@ -46,10 +49,30 @@ export default {
     this.getUserData();
   },
   methods: {
-    async getUserData() {
+    // async getUserData() {
+    //   try {
+    //     const id = this.$route.params.id;  
+    //     const response = await axios.get(`${baseUrl}/${id}`);
+    //     this.users = response.data;
+    //   } catch (error) {
+    //     console.error(error);
+    //   }
+    // },
+    // async UpdateUser() {
+    //   if (confirm('Are you sure you want to update this user?')) {
+    //     try {
+    //       await axios.put(`${baseUrl}/${this.users.id}`, this.users);
+    //       this.$router.push("/user"); 
+    //       this.resetForm(); 
+    //     } catch (error) {
+    //       console.error(error);
+    //     }
+    //   }
+    // },
+     async getUserData() {
       try {
         const id = this.$route.params.id;  
-        const response = await axios.get(`${baseUrl}/${id}`);
+        const response = await axios.get(`${baseUrl}/push-update-user/${id}`);
         this.users = response.data;
       } catch (error) {
         console.error(error);
@@ -58,11 +81,12 @@ export default {
     async UpdateUser() {
       if (confirm('Are you sure you want to update this user?')) {
         try {
-          await axios.put(`${baseUrl}/${this.users.id}`, this.users);
+          await axios.put(`${baseUrl}/update-user/${this.users.id}`, this.users);
           this.$router.push("/user"); 
           this.resetForm(); 
         } catch (error) {
           console.error(error);
+          alert('An error occurred while updating the user.');
         }
       }
     },
