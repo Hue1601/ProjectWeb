@@ -44,19 +44,10 @@ export default {
     };
   },
   methods: {
-    // async AddUser() {
-    //   try {
-    //     await axios.post(baseUrl, this.users);
-    //     alert('Are you sure you want to add this user?')
-    //     this.$router.push("/user");
-    //     this.resetForm();
-    //   } catch (error) {
-    //     console.error(error);
-    //   }
-    // },
     async AddUser() {
       try {
         if (confirm("Are you sure you want to add this user?")) {
+          //await axios.post(baseUrl, this.users);
           await axios.post(`${baseUrl}/add-user`, this.users);
           alert("User added successfully!");
           this.$router.push("/user");

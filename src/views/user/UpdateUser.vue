@@ -49,29 +49,11 @@ export default {
     this.getUserData();
   },
   methods: {
-    // async getUserData() {
-    //   try {
-    //     const id = this.$route.params.id;  
-    //     const response = await axios.get(`${baseUrl}/${id}`);
-    //     this.users = response.data;
-    //   } catch (error) {
-    //     console.error(error);
-    //   }
-    // },
-    // async UpdateUser() {
-    //   if (confirm('Are you sure you want to update this user?')) {
-    //     try {
-    //       await axios.put(`${baseUrl}/${this.users.id}`, this.users);
-    //       this.$router.push("/user"); 
-    //       this.resetForm(); 
-    //     } catch (error) {
-    //       console.error(error);
-    //     }
-    //   }
-    // },
+  
      async getUserData() {
       try {
         const id = this.$route.params.id;  
+        // const response = await axios.get(`${baseUrl}/${id}`);
         const response = await axios.get(`${baseUrl}/push-update-user/${id}`);
         this.users = response.data;
       } catch (error) {
@@ -81,6 +63,7 @@ export default {
     async UpdateUser() {
       if (confirm('Are you sure you want to update this user?')) {
         try {
+          //await axios.put(`${baseUrl}/${this.users.id}`, this.users);
           await axios.put(`${baseUrl}/update-user/${this.users.id}`, this.users);
           this.$router.push("/user"); 
           this.resetForm(); 

@@ -1,12 +1,10 @@
 <template>
   <div class="container">
-    <comp-header />
-    
+    <comp-header @search="handleSearch" />
     <h2 style="text-align: center; margin-top: 3px">Danh sách nhân viên</h2>
     <div class="row-list">
       <RouterLink to="/user/add" class="btn btn-outline-primary">Add</RouterLink>
     </div>
-   
     <div class="card-header">
       <table class="table">
         <thead>
@@ -21,9 +19,7 @@
           </tr>
         </thead>
         <tbody>
-          <!-- <tr v-for="item in users" :key="item.id"> -->
           <tr v-for="(item,index) in users" :key="index">
-            <!-- <td>{{ item.id }}</td> -->
              <td>{{ index+1 }}</td>
             <td>{{ item.username }}</td>
             <td>{{ item.pass }}</td>
@@ -54,13 +50,19 @@ export default {
   name: "list-user",
   data() {
     return {
-      users: []
+      users: [],
+      username:''
     };
   },
   components: {
-    CompHeader
+    CompHeader,
   },
   methods: {
+    handleSearch(value){
+      console.log("handling search event" , value);
+      this.users = value;
+    },
+
     async GetListUser() {
       try {
         const response = await axios.get(baseUrl);
@@ -69,17 +71,6 @@ export default {
         console.error(error);
       }
     },
-    // async DeleteUser(itemDelete) {
-    //   if (confirm('Are you sure you want to delete this user?')) {
-    //     try {
-    //       await axios.delete(`${baseUrl}/${itemDelete.id}`);
-    //       this.GetListUser();
-    //       alert('User deleted successfully!');
-    //     } catch (error) {
-    //       console.error(error);
-    //     }
-    //   }
-    // }
     async DeleteUser(itemDelete) {
   if (confirm('Are you sure you want to delete this user?')) {
     try {
@@ -90,8 +81,10 @@ export default {
       console.error(error);
     }
   }
-}
-
+},
+handleLogin(username) {
+      this.username = username;
+    }
   },
   mounted() {
     this.GetListUser();
