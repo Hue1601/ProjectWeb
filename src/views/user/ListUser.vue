@@ -1,12 +1,17 @@
 <template>
   <div class="container">
     <comp-header @search="handleSearch" />
+    <div class="list">
     <h2 style="text-align: center; margin-top: 3px">Danh sách nhân viên</h2>
     <div class="row-list">
-      <RouterLink to="/user/add" class="btn btn-outline-primary">Add</RouterLink>
+        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" v-model="search" 
+        v-on:keyup.enter="SearchUser" >
+       
+        <RouterLink to="/user/add" class="btn btn-outline-primary">Add</RouterLink> 
     </div>
+
     <div class="card-header">
-      <table class="table">
+      <table class="table" >
         <thead>
           <tr>
             <th scope="col">STT</th>
@@ -37,6 +42,7 @@
         </tbody>
       </table>
     </div>
+    </div>
   </div>
 </template>
 
@@ -51,7 +57,8 @@ export default {
   data() {
     return {
       users: [],
-      username:''
+      username:'',
+      search:''
     };
   },
   components: {
@@ -62,7 +69,18 @@ export default {
       console.log("handling search event" , value);
       this.users = value;
     },
-
+async SearchUser() {
+      console.log('search');
+      try {
+        const response = await axios.get(`http://localhost:8080/api/search`, {
+          params: { keyword: this.search }
+        });
+        this.users = response.data;
+      } catch (error) {
+        console.error("Search error:", error);
+      }
+     this.$emit("search", this.users);
+    },
     async GetListUser() {
       try {
         const response = await axios.get(baseUrl);
@@ -81,10 +99,7 @@ export default {
       console.error(error);
     }
   }
-},
-handleLogin(username) {
-      this.username = username;
-    }
+}
   },
   mounted() {
     this.GetListUser();
@@ -93,8 +108,17 @@ handleLogin(username) {
 </script>
 
 <style>
+.btn-outline-primary{
+  margin-right: 13px;
+}
+.list{
+  height: 90vh;
+  border: 1px solid  #c4c4c4;
+}
 .row-list {
   margin-top: 5px;
-  padding-left: 90%;
+    display: flex;
+   padding-left: 60%; 
+
 }
 </style>
