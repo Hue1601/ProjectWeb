@@ -25,17 +25,21 @@
         </div>
       </div>
 
-      <button type="submit" class="btn btn-primary btn-block mb-4" :disabled="loading">
+      <button type="submit" class="btn btn-primary btn-block mb-4" :disabled="loading" style="margin-left:33%">
         <span v-if="loading">Logging in...</span>
         <span v-else>ĐĂNG NHẬP</span>
-      </button>   
+      </button> 
+
+      <div v-if="errorMessage" class="alert alert-danger" role="alert">
+        {{ errorMessage }}
+      </div>  
     </form>
   </div>
 </template>
 <script>
 import axios from 'axios';
 // const baseUrl = "http://localhost:3000/users";
- const baseUrl = "http://localhost:8080/api/list";
+ const baseUrl = "http://localhost:8080/api";
 export default {
   name: "login",
   data() {
@@ -51,25 +55,27 @@ export default {
   },
  methods: {
   async login() {
-    this.loading = true;
+   this.loading = true;
     this.errorMessage = '';
     try {
-      const response = await axios.get(baseUrl);
-      const users = response.data;
-      const user = users.find(u => u.username === this.users.username && u.pass === this.users.pass);
-      if (user) {
-        this.$router.push("/user"); 
+      const response = await axios.post(`${baseUrl}/login`, this.users); 
+      if (response.status === 200) {
+        this.$router.push("/user");
       } else {
         this.errorMessage = "Incorrect account or password"; 
       }
     } catch (err) {
-      this.errorMessage = "Error, please try again"; 
+      if (err.response && err.response.status === 401) {
+        this.errorMessage = "Incorrect account or password"; 
+      } else {
+        this.errorMessage = "Error, please try again"; 
+      }
     } finally {
-      this.loading = false; 
+      this.loading = false;
     }
   }
-   
-},
+ },
+
 
   mounted() {
     console.log("mounted() called .......");
