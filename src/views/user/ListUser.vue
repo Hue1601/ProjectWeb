@@ -5,8 +5,7 @@
     <h2 style="text-align: center; margin-top: 3px">Danh sách nhân viên</h2>
     <div class="row-list">
         <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" v-model="search" 
-        v-on:keyup.enter="SearchUser" >
-       
+        @keyup.enter="SearchUser">
         <RouterLink to="/user/add" class="btn btn-outline-primary">Add</RouterLink> 
     </div>
 
@@ -25,7 +24,7 @@
         </thead>
         <tbody>
           <tr v-for="(item,index) in users" :key="index">
-             <td>{{ index+1 }}</td>
+            <td>{{ index + 1 + ((currentPage - 1) * pageSize) }}</td>
             <td>{{ item.username }}</td>
             <td>{{ item.pass }}</td>
             <td>{{ item.sdt }}</td>
@@ -36,12 +35,28 @@
               Update</RouterLink>
               <button @click="DeleteUser(item)" class="btn btn-outline-primary" style="margin-left: 3px">
                 Delete
-              </button>
+              </button>        
             </td>
           </tr>
         </tbody>
       </table>
     </div>
+      <nav aria-label="Page navigation example">
+        <ul class="pagination">
+          <li  class="page-item" :class="{ disabled: currentPage === 1 }" @click="Pagination(currentPage - 1)">
+            <a class="page-link" >Previous</a>
+          </li>
+          <li v-for="page in totalPages"  :key="page"  class="page-item" :class="{ active: page === currentPage }" >
+            <a class="page-link"  @click="Pagination(page)" >
+              {{ page }}
+            </a>
+          </li>
+          <li  class="page-item" :class="{ disabled: currentPage === totalPages }" 
+            @click="Pagination(currentPage + 1)" >
+            <a class="page-link" >Next</a>
+          </li>
+        </ul>
+      </nav>
     </div>
   </div>
 </template>
@@ -50,15 +65,17 @@
 import CompHeader from "../../components/CompHeader.vue";
 import axios from 'axios';
  //const baseUrl = "http://localhost:3000/users";
- const baseUrl = "http://localhost:8080/api/list";
-
+ const baseUrl = "http://localhost:8080/api";
 export default {
   name: "list-user",
   data() {
     return {
       users: [],
-      username:'',
-      search:''
+      // username:'',
+      search:'',
+     currentPage: 1,
+      totalPages: 1,
+      pageSize: 5,
     };
   },
   components: {
@@ -69,11 +86,12 @@ export default {
       console.log("handling search event" , value);
       this.users = value;
     },
-async SearchUser() {
+    async SearchUser() {
       console.log('search');
       try {
-        const response = await axios.get(`http://localhost:8080/api/search`, {
-          params: { keyword: this.search }
+        // const response = await axios.get(`http://localhost:8080/api/search`, {
+         const response = await axios.get(`${baseUrl}/search`, {
+        params: { keyword: this.search }
         });
         this.users = response.data;
       } catch (error) {
@@ -81,25 +99,43 @@ async SearchUser() {
       }
      this.$emit("search", this.users);
     },
-    async GetListUser() {
+    // async GetListUser() {
+    //   try {
+    //     const response = await axios.get(`${baseUrl}/list`);
+    //     this.users = response.data;
+    //   } catch (error) {
+    //     console.error(error);
+    //   }
+    // },
+      async GetListUser(page = 1) {
       try {
-        const response = await axios.get(baseUrl);
-        this.users = response.data;
+        const response = await axios.get(`${baseUrl}/pagination`, {
+          params: { p: page - 1 } 
+        });
+        this.users = response.data.users;
+        this.totalPages = response.data.totalPages;
+        this.currentPage = response.data.currentPage + 1; 
       } catch (error) {
         console.error(error);
       }
     },
     async DeleteUser(itemDelete) {
-  if (confirm('Are you sure you want to delete this user?')) {
-    try {
-       await axios.delete(`http://localhost:8080/api/delete-user/${itemDelete.id}`);
-      this.GetListUser();
-      alert('User deleted successfully!');
-    } catch (error) {
-      console.error(error);
-    }
-  }
-}
+   if (confirm('Are you sure you want to delete this user?')) {
+        try {
+          await axios.delete(`${baseUrl}/delete-user/${itemDelete.id}`);
+          this.GetListUser(this.currentPage);
+          alert('User deleted successfully!');
+        } catch (error) {
+          console.error(error);
+          alert('Error deleting user.');
+        }
+      }
+    },
+     Pagination(page) {
+      if (page > 0 && page <= this.totalPages) {
+        this.GetListUser(page);
+      }
+    },
   },
   mounted() {
     this.GetListUser();
@@ -108,6 +144,9 @@ async SearchUser() {
 </script>
 
 <style>
+.pagination{
+   padding-left: 38%; 
+}
 .btn-outline-primary{
   margin-right: 13px;
 }
@@ -120,5 +159,10 @@ async SearchUser() {
     display: flex;
    padding-left: 60%; 
 
+}
+.card-header{
+  height: 72vh;
+  margin-left: 20px;
+  margin-right: 20px;
 }
 </style>
