@@ -45,8 +45,8 @@ export default {
   data() {
     return {
       users: {
-        username: '',
-        pass: ''
+        username: "",
+        pass: ""
       },
       rememberMe: false,
       loading: false,
@@ -55,11 +55,22 @@ export default {
   },
  methods: {
   async login() {
-   this.loading = true;
+     this.loading = true;
     this.errorMessage = '';
     try {
       const response = await axios.post(`${baseUrl}/login`, this.users); 
       if (response.status === 200) {
+         localStorage.setItem("username", response.data.username);
+          localStorage.setItem("pass", response.data.pass);
+          
+
+        const userLogin = {
+          id: response.data.id,
+          username: response.data.username
+        };
+        console.log("User: " , userLogin);
+        this.$store.commit('setUser', userLogin);
+
         this.$router.push("/user");
       } else {
         this.errorMessage = "Incorrect account or password"; 
