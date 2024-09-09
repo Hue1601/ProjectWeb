@@ -17,59 +17,60 @@
               </div>
             </div>
           </div>
-      <div class="inbox_chat">
-  <div
-    class="chat_people"
-    v-for="conversation in filteredConversations"
-    :key="conversation.id"
-    @click="selectConversation(conversation.id)"
-    :class="{ active_chat: conversation.id === activeConversationId }"
-  >
-    <div class="chat_img">
-      <img src="https://ptetutorials.com/images/user-profile.png" alt="User" />
-    </div>
-    <div class="chat_ib">
-      <h5>{{ conversation.conversationname }} <span class="chat_date"></span></h5>
-      <p>{{ getLastMessage(conversation.id) }}</p>
-    </div>
-  </div>
-</div>
+          <div class="inbox_chat">
+            <div
+              class="chat_people"
+              v-for="peerUser in filteredPeerUsers"
+              :key="peerUser.username"
+              @click="selectPeerUser(peerUser.username)"
+              :class="{ active_chat: peerUser.username === UsernameChat }"
+            >
+              <div class="chat_img">
+                <img src="https://ptetutorials.com/images/user-profile.png" alt="User" />
+              </div>
+              <div class="chat_ib">
+                <h5>{{ peerUser.username }} <span class="chat_date"></span></h5>
+                <p>{{ peerUser.lastMessage }}</p>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- chatbox -->
-        <div v-if="activeConversationId === null">
-          <p>Select a conversation to start chatting</p>
+        <div v-if="UsernameChat === null">
+          <p>Welcome</p>
         </div>
         <div class="mesgs" v-else>
           <div class="nameuser">
-            <h5>Conversation: {{ activeConversationName }}</h5>
+            <h5>Chat with: {{ UsernameChat }}</h5>
           </div>
-      <div class="history">
-  <div
-    v-for="message in filteredMessages"
-    :key="message.id"
-    :class="message.iduser.username === loginUsername ? 'MessageFrom' : 'MessageTo'"
-  >
-    <div v-if="message.iduser.username !== loginUsername" class="MessageTo">
-      <div class="MessageTo_img">
-        <img src="https://ptetutorials.com/images/user-profile.png" alt="User" />
-      </div>
-      <div class="received">
-        <div class="received_withd">
-          <p>{{ message.messagetext }}</p>
-          <span class="time_date">{{ message.iduser.username }} | {{ formatDate(message.timestamp) }}</span>
-        </div>
-      </div>
-    </div>
-    <div v-else class="MessageFrom">
-      <div class="sent">
-        <p>{{ message.messagetext }}</p>
-        <span class="time_date">{{ formatDate(message.timestamp) }}</span>
-      </div>
-    </div>
-  </div>
-</div>
-
+          <div class="history">
+            <div
+              v-for="message in filteredMessages"
+              :key="message.id"
+              :class="message.iduser.username === loginUsername ? 'MessageFrom' : 'MessageTo'"
+            >
+              <div v-if="message.iduser.username !== loginUsername" class="MessageTo">
+                <div class="MessageTo_img">
+                  <img src="https://ptetutorials.com/images/user-profile.png" alt="User" />
+                </div>
+                <div class="received">
+                  <div class="received_withd">
+                    <p>{{ message.messagetext }}</p>
+                    <span class="time_date">
+                      {{ message.iduser.username }} | {{ formatDate(message.timestamp) }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div v-else class="MessageFrom">
+                <div class="sent">
+                  <p>{{ message.messagetext }}</p>
+                  <span class="time_date">{{ formatDate(message.timestamp) }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
           <div class="type">
             <div class="input_write">
               <input v-model="newMessage" type="text" class="write" placeholder="Type a message" />
@@ -96,85 +97,82 @@ export default {
   data() {
     return {
       loginUsername: this.$store.state.user.username,
-      activeConversationId: null,
-      activeConversationName: null,
+      UsernameChat: null,
       newMessage: "",
-      conversations: [],
       messages: [],
+      peerUsers: [],
       searchQuery: "",
     };
   },
- async created() {
-  axios.get(`${baseUrl}/conversations`, {
-  params: {
-    userid: this.$store.state.user.id
-  }
-})
-.then(response => {
-  this.conversations = response.data;
-})
-.catch(error => {
-  console.error("Error loading conversations:", error);
-});
-
-}
-
-,
+  async created() {
+    try {
+      const response = await axios.get(`${baseUrl}/messages`);
+      this.messages = response.data;
+      this.letsChat();
+    } catch (error) {
+      console.error("Error loading messages:", error);
+    }
+  },
   methods: {
-   getLastMessage(conversationId) {
-  const conversationMessages = this.messages.filter(
-    (message) => message.idconversations.id === conversationId
-  );
-  return conversationMessages.length
-    ? conversationMessages[conversationMessages.length - 1].messagetext
-    : "No messages";
-},
-    async selectConversation(conversationId) {
-      this.activeConversationId = conversationId;
-      const selectedConversation = this.conversations.find((conv) => conv.id === conversationId);
-      this.activeConversationName = selectedConversation.conversationname;
+    letsChat() {
+      const uniqueUsers = new Set();
+      this.messages.forEach((message) => {
+        if (message.iduser.username !== this.loginUsername) {
+          uniqueUsers.add(message.iduser.username);
+        }
+      });
+
+      this.peerUsers = Array.from(uniqueUsers).map((username) => {
+        return {
+          username,
+          lastMessage: this.getLastMessage(username),
+        };
+      });
+    },
+    getLastMessage(username) {
+      const userMessages = this.messages.filter(
+        (message) => message.iduser.username === username
+      );
+      return userMessages.length
+        ? userMessages[userMessages.length - 1].messagetext
+        : "No messages";
+    },
+    selectPeerUser(username) {
+      this.UsernameChat = username;
+    },
+    async sendMessage() {
+      if (!this.newMessage.trim()) return;
 
       try {
-        const response = await axios.get(`${baseUrl}/messages`);
-        this.messages = response.data.filter(
-          (message) => message.idconversations.id === conversationId
-        );
+        const newMessageData = {
+          messagetext: this.newMessage,
+          iduser: { id: this.$store.state.user.id, username: this.loginUsername },
+          timestamp: new Date().toISOString(),
+        };
+        const response = await axios.post(`${baseUrl}/messages`, newMessageData);
+        this.messages.push(response.data);
+        this.newMessage = "";
+        this.letsChat();
       } catch (error) {
-        console.error("Error loading messages:", error);
+        console.error("Error sending message:", error);
       }
     },
-   async sendMessage() {
-  if (!this.newMessage.trim() || !this.activeConversationId) return;
-
-  try {
-    const newMessageData = {
-      messagetext: this.newMessage,
-      iduser: { id: this.$store.state.user.id, username: this.loginUsername },
-      idconversations: { id: this.activeConversationId }, // Đảm bảo gửi đúng conversationId
-      timestamp: new Date().toISOString(),
-    };
-    const response = await axios.post(`${baseUrl}/messages`, newMessageData);
-    this.messages.push(response.data);
-    this.newMessage = ""; // Clear the input field after sending the message
-  } catch (error) {
-    console.error("Error sending message:", error);
-  }
-}
-,
     formatDate(timestamp) {
       const date = new Date(timestamp);
       return `${date.toLocaleTimeString()} | ${date.toLocaleDateString()}`;
     },
   },
   computed: {
-  filteredConversations() {
-  return this.conversations.filter((conversation) =>
-    conversation.conversationname.toLowerCase().includes(this.searchQuery.toLowerCase())
-  );
-},
     filteredMessages() {
       return this.messages.filter(
-        (message) => message.idconversations.id === this.activeConversationId
+        (message) =>
+          message.iduser.username === this.UsernameChat ||
+          (message.iduser.username === this.loginUsername && this.UsernameChat !== null)
+      );
+    },
+    filteredPeerUsers() {
+      return this.peerUsers.filter((user) =>
+        user.username.toLowerCase().includes(this.searchQuery.toLowerCase())
       );
     },
   },
@@ -183,7 +181,6 @@ export default {
   },
 };
 </script>
-
 
 
 

@@ -6,6 +6,8 @@
     <div class="row-list">
         <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" v-model="search" 
         @keyup.enter="SearchUser">
+        <!-- <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" v-model="search" 
+        @input="SearchUser"> -->
         <RouterLink to="/user/add" class="btn btn-outline-primary">Add</RouterLink> 
     </div>
 
@@ -75,21 +77,20 @@ export default {
       search:'',
      currentPage: 1,
       totalPages: 1,
-      pageSize: 5,
+      pageSize: 8,
     };
   },
   components: {
     CompHeader,
   },
   methods: {
-    handleSearch(value){
-      console.log("handling search event" , value);
-      this.users = value;
-    },
+    // handleSearch(value){
+    //   console.log("handling search event" , value);
+    //   this.users = value;
+    // },
     async SearchUser() {
       console.log('search');
       try {
-        // const response = await axios.get(`http://localhost:8080/api/search`, {
          const response = await axios.get(`${baseUrl}/search`, {
         params: { keyword: this.search }
         });
@@ -97,16 +98,7 @@ export default {
       } catch (error) {
         console.error("Search error:", error);
       }
-     this.$emit("search", this.users);
     },
-    // async GetListUser() {
-    //   try {
-    //     const response = await axios.get(`${baseUrl}/list`);
-    //     this.users = response.data;
-    //   } catch (error) {
-    //     console.error(error);
-    //   }
-    // },
       async GetListUser(page = 1) {
       try {
         const response = await axios.get(`${baseUrl}/pagination`, {
